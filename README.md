@@ -4,7 +4,7 @@ Ask Brave a question and get a privacy-respecting AI answer powered by real-time
 
 ## Setup
 
-1. Create a Brave Search API key at [api-dashboard.search.brave.com/app/keys](https://api-dashboard.search.brave.com/app/keys) (requires an Answers plan subscription).
+1. Create a Brave Search API key at [api-dashboard.search.brave.com/app/keys](https://api-dashboard.search.brave.com/app/keys) (requires an Answers plan subscription — there is a free $5/month credit included).
 2. Open Raycast, search for **Ask Brave**, and open its preferences.
 3. Paste your API key into the **Brave API Key** field.
 
