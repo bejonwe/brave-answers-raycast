@@ -23,11 +23,11 @@
       "preferences": [
         {
           "name": "apiKey",
-          "title": "Brave API Key",
-          "description": "Your Brave Search API key. Create one at https://api-dashboard.search.brave.com/app/keys",
+          "title": "Brave Answers API Key",
+          "description": "Your Brave Answers API key. Create one at https://api-dashboard.search.brave.com/app/keys",
           "type": "password",
           "required": true,
-          "placeholder": "Enter your Brave API key"
+          "placeholder": "Enter your Brave Answers API key"
         }
       ]
     }
