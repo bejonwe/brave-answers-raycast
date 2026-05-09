@@ -6,7 +6,6 @@ interface Preferences {
   autosuggestApiKey: string;
 }
 
-
 interface StreamChunk {
   choices: {
     delta: { content?: string };
@@ -25,7 +24,6 @@ interface SuggestionResult {
   type: string;
   value: string;
 }
-
 
 async function fetchSuggestions(query: string, autosuggestApiKey: string): Promise<string[]> {
   if (!query.trim() || !autosuggestApiKey) {
@@ -131,7 +129,7 @@ function AnswerDetail({ question, apiKey }: { question: string; apiKey: string }
                     collectedCitations.push(citation);
                     setCitations([...collectedCitations]);
                   }
-                  setAnswer((prev) => prev + ` [[${citation.number + 1}]](${citation.url})`);  
+                  setAnswer((prev) => prev + ` [[${citation.number + 1}]](${citation.url})`);
                 } catch {
                   // skip malformed citation
                 }
@@ -201,16 +199,10 @@ function AnswerDetail({ question, apiKey }: { question: string; apiKey: string }
             }
           })();
           const snippet = getCleanSnippet(c.snippet);
-          const faviconIcon = c.favicon
-            ? { source: c.favicon, fallback: Icon.Link }
-            : Icon.Link;
+          const faviconIcon = c.favicon ? { source: c.favicon, fallback: Icon.Link } : Icon.Link;
           return (
             <React.Fragment key={c.number}>
-              <Detail.Metadata.Label
-                title={`[${c.number + 1}]`}
-                icon={faviconIcon}
-                text={domain}
-              />
+              <Detail.Metadata.Label title={`[${c.number + 1}]`} icon={faviconIcon} text={domain} />
               <Detail.Metadata.Link title="" target={c.url} text="Open source ↗" />
               {snippet && <Detail.Metadata.Label title="" text={snippet} />}
               <Detail.Metadata.Separator />
@@ -307,10 +299,7 @@ export default function Command() {
                   icon={Icon.LightBulb}
                   actions={
                     <ActionPanel>
-                      <Action.Open
-                        title="Use Suggestion"
-                        onAction={() => handleSuggestionClick(suggestion)}
-                      />
+                      <Action.Open title="Use Suggestion" onAction={() => handleSuggestionClick(suggestion)} />
                     </ActionPanel>
                   }
                 />
