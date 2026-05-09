@@ -1,6 +1,5 @@
 import { ActionPanel, Action, List, Detail, getPreferenceValues, showToast, Toast, Icon } from "@raycast/api";
 import React, { useEffect, useState, useCallback } from "react";
-import { useDebounce } from "@raycast/utils";
 
 interface Preferences {
   apiKey: string;
@@ -241,8 +240,17 @@ export default function Command() {
   const [question, setQuestion] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [debouncedQuestion, setDebouncedQuestion] = useState("");
 
-  const debouncedQuestion = useDebounce(question, 300);
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedQuestion(question);
+    }, 300);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [question]);
 
   useEffect(() => {
     if (!debouncedQuestion.trim() || !autosuggestApiKey) {
