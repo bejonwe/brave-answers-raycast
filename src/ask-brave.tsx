@@ -48,8 +48,8 @@ async function fetchSuggestions(query: string, autosuggestApiKey: string): Promi
     }
 
     const data = await response.json();
-    const suggestions = data?.results?.[0]?.suggestions || [];
-    return suggestions.filter((s: string) => s && s.toLowerCase() !== query.toLowerCase());
+    const suggestions: string[] = (data?.results || []).map((r: { value: string }) => r.value).filter(Boolean);
+    return suggestions.filter((s) => s.toLowerCase() !== query.toLowerCase());
   } catch (err) {
     console.error("Error fetching autosuggestions:", err);
     return [];
