@@ -19,7 +19,7 @@ This extension bridges that gap by bringing Brave AI Answers into Raycast throug
 
 ## Setup
 
-1. Create a Brave Search API key at [********/app/keys](https://********/app/keys). (An active Brave Search API plan for Brave Answers is needed, the free tier includes 5$/month credit.)
+1. Create a Brave Search API key at [api-dashboard.search.brave.com/app/keys](https://api-dashboard.search.brave.com/app/keys). (An active Brave Search API plan for Brave Answers is needed, the free tier includes 5$/month credit.)
 2. **Optional**: Create a Brave Autosuggest API key at the same location if you want search suggestions as you type.
 3. Open Raycast, search for **Ask Brave**, and open the command preferences.
 4. Paste your Brave Answers API key into the **Brave API Key** field.
