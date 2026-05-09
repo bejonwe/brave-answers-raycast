@@ -22,7 +22,8 @@ interface Citation {
 
 interface SuggestionResult {
   type: string;
-  value: string;
+  query?: string;
+  value?: string;
 }
 
 async function fetchSuggestions(query: string, autosuggestApiKey: string): Promise<string[]> {
@@ -50,7 +51,9 @@ async function fetchSuggestions(query: string, autosuggestApiKey: string): Promi
     }
 
     const data = await response.json();
-    const suggestions: string[] = (data?.results || []).map((r: SuggestionResult) => r.value).filter(Boolean);
+    const suggestions: string[] = (data?.results || [])
+      .map((r: SuggestionResult) => r.query ?? r.value)
+      .filter(Boolean);
     return suggestions.filter((s) => s.toLowerCase() !== query.toLowerCase());
   } catch (err) {
     console.error("Error fetching autosuggestions:", err);
