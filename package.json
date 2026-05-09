@@ -28,6 +28,14 @@
           "type": "password",
           "required": true,
           "placeholder": "Enter your Brave Answers API key"
+        },
+        {
+          "name": "autosuggestApiKey",
+          "title": "Brave Autosuggest API Key (Optional)",
+          "description": "Your Brave Autosuggest API key for search suggestions. Create one at https://api-dashboard.search.brave.com/app/keys. Leave empty to disable autosuggest.",
+          "type": "password",
+          "required": false,
+          "placeholder": "Enter your Brave Autosuggest API key (optional)"
         }
       ]
     }

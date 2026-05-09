@@ -1,9 +1,12 @@
 import { ActionPanel, Action, List, Detail, getPreferenceValues, showToast, Toast, Icon } from "@raycast/api";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useDebounce } from "@raycast/utils";
 
 interface Preferences {
   apiKey: string;
+  autosuggestApiKey: string;
 }
+
 
 interface StreamChunk {
   choices: {
@@ -19,6 +22,39 @@ interface Citation {
   snippet?: string;
 }
 
+
+async function fetchSuggestions(query: string, autosuggestApiKey: string): Promise<string[]> {
+  if (!query.trim() || !autosuggestApiKey) {
+    return [];
+  }
+
+  try {
+    const url = new URL("https://api.search.brave.com/res/v1/suggest/search");
+    url.searchParams.append("q", query);
+    url.searchParams.append("count", "5");
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Subscription-Token": autosuggestApiKey,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Autosuggest API Error ${response.status}: ${errorText}`);
+      return [];
+    }
+
+    const data = await response.json();
+    const suggestions = data?.results?.[0]?.suggestions || [];
+    return suggestions.filter((s: string) => s && s.toLowerCase() !== query.toLowerCase());
+  } catch (err) {
+    console.error("Error fetching autosuggestions:", err);
+    return [];
+  }
+}
 function AnswerDetail({ question, apiKey }: { question: string; apiKey: string }) {
   const [answer, setAnswer] = useState("");
   const [citations, setCitations] = useState<Citation[]>([]);
@@ -196,8 +232,38 @@ function AnswerDetail({ question, apiKey }: { question: string; apiKey: string }
 }
 
 export default function Command() {
-  const { apiKey } = getPreferenceValues<Preferences>();
+  const { apiKey, autosuggestApiKey } = getPreferenceValues<Preferences>();
   const [question, setQuestion] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
+  const debouncedQuestion = useDebounce(question, 300);
+
+  useEffect(() => {
+    if (!debouncedQuestion.trim() || !autosuggestApiKey) {
+      setSuggestions([]);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoadingSuggestions(true);
+
+    fetchSuggestions(debouncedQuestion, autosuggestApiKey).then((result) => {
+      if (!cancelled) {
+        setSuggestions(result);
+        setIsLoadingSuggestions(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedQuestion, autosuggestApiKey]);
+
+  const handleSuggestionClick = useCallback((suggestion: string) => {
+    setQuestion(suggestion);
+    setSuggestions([]);
+  }, []);
 
   return (
     <List
@@ -207,16 +273,41 @@ export default function Command() {
       throttle={false}
     >
       {question.trim() ? (
-        <List.Item
-          title={question}
-          subtitle="Press Enter to ask Brave"
-          icon={{ source: "extension-icon.png" }}
-          actions={
-            <ActionPanel>
-              <Action.Push title="Ask Brave" target={<AnswerDetail question={question.trim()} apiKey={apiKey} />} />
-            </ActionPanel>
-          }
-        />
+        <>
+          <List.Item
+            title={question}
+            subtitle="Press Enter to ask Brave"
+            icon={{ source: "extension-icon.png" }}
+            actions={
+              <ActionPanel>
+                <Action.Push title="Ask Brave" target={<AnswerDetail question={question.trim()} apiKey={apiKey} />} />
+              </ActionPanel>
+            }
+          />
+          {autosuggestApiKey && suggestions.length > 0 && (
+            <List.Section title="Suggestions">
+              {suggestions.map((suggestion) => (
+                <List.Item
+                  key={suggestion}
+                  title={suggestion}
+                  subtitle="Click to use this suggestion"
+                  icon={Icon.LightBulb}
+                  actions={
+                    <ActionPanel>
+                      <Action.Open
+                        title="Use Suggestion"
+                        onAction={() => handleSuggestionClick(suggestion)}
+                      />
+                    </ActionPanel>
+                  }
+                />
+              ))}
+            </List.Section>
+          )}
+          {autosuggestApiKey && isLoadingSuggestions && question.trim() && (
+            <List.Item title="Loading suggestions..." icon={Icon.Clock} />
+          )}
+        </>
       ) : (
         <List.EmptyView title="Ask Brave a Question" description="Type your question above and press Enter" />
       )}
